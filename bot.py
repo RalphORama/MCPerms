@@ -7,6 +7,7 @@ Attributes:
     g_roles (dict): Description
     g_sid (str): Description
 """
+import asyncio
 import csv
 import discord
 import json
