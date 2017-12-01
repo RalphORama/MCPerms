@@ -1,6 +1,7 @@
 # Custom entries
 *.sublime-workspace
-config.json
+cfg/config.json
+cfg/roles.json
 data/*
 
 ######
