@@ -1,3 +1,12 @@
+"""Summary
+
+Attributes:
+    bot (TYPE): Description
+    g_fieldnames (TYPE): Description
+    g_panel (TYPE): Description
+    g_roles (dict): Description
+    g_sid (str): Description
+"""
 import csv
 import discord
 import json
@@ -23,22 +32,22 @@ def create_data_if_not_exists(folder: str, files: list):
         folder (str): The folder to create files within.
         files (list): The files to create.
     """
-    if not os.path.exists('data'):
-        os.makedirs('data')
+    if not os.path.exists(folder):
+        os.makedirs(folder)
 
     for file in files:
-        path = 'data/{}'.format(file)
+        path = '{}/{}'.format(folder, file)
         if not os.path.exists(path):
             with open(path, 'w+') as f:
-                f.write()
+                f.write('')
 
 
-def create_config_file(filename: str):
-    """Copy the config files from `<filename>-example.<ext>`
-    over to `<filename>.<ext>`
+def copy_from_example(filename: str):
+    """Create a copy of an example file for the user to edit.
+    I.e. cfg/config-example.json -> cfg/config.json
 
     Args:
-        filename (str): The file to create.
+        filename (str): The file to create from a template.
     """
     name = filename[0:filename.index('.')]
     ext = filename[filename.index('.'):]
@@ -48,15 +57,19 @@ def create_config_file(filename: str):
     copy2(source, dest)
 
 
-def instantiate_claimed_file():
-    """Create the file that stores Discord IDs and the UUIDs of the accounts
-    they claimed.
+def instantiate_csv(filepath: str, fieldnames: list):
+    """Instantiate a CSV with the specified field names.
+
+    Args:
+        filepath (str): The full path of the file to populate.
+        fieldnames (list): The fieldnames to set as the header.
     """
 
-    # Special operation on our CSV file to add the header
-    with open('data/claimed.csv', 'w+', newline='') as claimed_file:
-        writer = csv.DictWriter(claimed_file, fieldnames=g_fieldnames)
-        writer.writeheader()
+    if not (os.path.isfile(filepath) and
+            os.stat(filepath).st_size > 0):
+        with open(filepath, 'w+', newline='') as file:
+            writer = csv.DictWriter(file, fieldnames=fieldnames)
+            writer.writeheader()
 
 
 def check_claim_eligibility(author: discord.User, server: discord.Server, uuid: str) -> str:
@@ -71,33 +84,30 @@ def check_claim_eligibility(author: discord.User, server: discord.Server, uuid: 
     Returns:
         str: Message describing any or lack of conflicts.
     """
-    if not os.path.isfile('data/claimed.csv'):
-        instantiate_claimed_file()
-    else:
-        with open('data/claimed.csv', 'r', newline='') as claimed_file:
-            reader = csv.DictReader(claimed_file)
+    with open('data/claimed.csv', 'r', newline='') as claimed_file:
+        reader = csv.DictReader(claimed_file)
 
-            for row in reader:
-                # Respond whether we get a UUID match, Discord ID match,
-                # or no match
+        for row in reader:
+            # Respond whether we get a UUID match, Discord ID match,
+            # or no match
 
-                if (row['DISCORD_ID'] == author.id):
-                    msg = 'You already registered account {} [`{}`].'
-                    return msg.format(row['USERNAME'], row['UUID'])
-                elif (row['UUID'] == uuid):
-                    if server.get_member(row['DISCORD_ID']):
-                        tag = row['DISCORD_MENTION']
-                    else:
-                        tag = row['DISCORD_NICK']
+            if (row['DISCORD_ID'] == author.id):
+                msg = 'You already registered account {} [`{}`].'
+                return msg.format(row['USERNAME'], row['UUID'])
+            elif (row['UUID'] == uuid):
+                if server.get_member(row['DISCORD_ID']):
+                    tag = row['DISCORD_MENTION']
+                else:
+                    tag = row['DISCORD_NICK']
 
-                    msg = '{} already claimed account {} [`{}`].'
-                    return msg.format(tag, row['USERNAME'], row['UUID'])
+                msg = '{} already claimed account {} [`{}`].'
+                return msg.format(tag, row['USERNAME'], row['UUID'])
 
-    # The for loop doesn't execute if there are no rows in the file.
-    # Thus, this part is outside to catch both 'not found' and
-    # 'fresh file' cases.
-    msg = 'OK for you to register this nick with this account.'
-    return msg
+        # The for loop doesn't execute if there are no rows in the file.
+        # Thus, this part is outside to catch both 'not found' and
+        # 'fresh file' cases.
+        msg = 'OK for you to register this nick with this account.'
+        return msg
 
 
 def add_claimed_account(author: discord.User, username: str, uuid: str):
@@ -122,12 +132,23 @@ def add_claimed_account(author: discord.User, username: str, uuid: str):
 
 @bot.event
 async def on_ready():
+    """Summary
+    """
     print('Logged in as {}'.format(bot.user))
     print('Loaded {} roles.'.format(len(g_roles.keys())))
 
 
 @bot.command(pass_context=True)
 async def claim(ctx, username):
+    """Summary
+
+    Args:
+        ctx (TYPE): Description
+        username (TYPE): Description
+
+    Returns:
+        TYPE: Description
+    """
     channel = ctx.message.channel
     a = ctx.message.author
     uuid = mcapi.username_to_uuid(username)
@@ -170,11 +191,17 @@ async def claim(ctx, username):
 
 
 if __name__ == '__main__':
+    data_files = ['claimed.csv']
+    create_data_if_not_exists('data', data_files)
+    for file in data_files:
+        if file[file.index('.'):] == '.csv':
+            instantiate_csv('data/' + file, g_fieldnames)
+
     cfg_files = ['cfg/config.json', 'cfg/roles.json']
     for file in cfg_files:
         # Throw an error and exit if our critical config files don't exist
         if not os.path.isfile(file):
-            create_config_file(file)
+            copy_from_example(file)
             exit('{} not found! I just created it for you. Go fill it out.'
                  .format(file))
 
