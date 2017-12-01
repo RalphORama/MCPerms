@@ -3,6 +3,9 @@
 Attributes:
     bot (discord.ext.commands.bot.Bot): The bot, of course.
     g_fieldnames (list): List of fieldnames for `data/claimed.csv`.
+    g_helper (TYPE): Helper class for file I/O functions
+
+Deleted Attributes:
     g_panel (pterodactyl.Pterodactyl): API wrapper class for Pterodactyl panel.
     g_roles (dict): List of Discord role IDs and their associated PEX groups.
     g_sid (str): Short UUID of the Minecraft server hosted by Pterodactyl.
@@ -69,7 +72,6 @@ async def claim(ctx, username: str):
     roles_added = []
 
     for role in ctx.message.author.roles:
-
         if role.id in roles:
             for group in roles[role.id]:
                 cmd = 'pex group {} user add {}'.format(group, uuid)

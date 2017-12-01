@@ -1,3 +1,5 @@
+"""Summary
+"""
 import csv
 import discord
 import os
@@ -7,14 +9,39 @@ from shutil import copy2
 
 
 class MCPermsHelper():
+
+    """Helper class for the file I/O the bot does.
+
+    Attributes:
+        basedir (str): Working directory for the bot.
+        claimfile (str): CSV holding claimed account data.
+        fieldnames (list): Headers for the `claimfile` csv.
+        panel (Pterodactyl): Pterodactyl API instance.
+        roles (dict): Dict for converting Discord role -> PEX groups.
+        sid (str): Short UUID for the server we're interacting with.
+    """
+
     def __init__(self, roles: dict, panel: Pterodactyl, sid: str,
                  fieldnames: list, basedir=''):
-        self.roles = {}
+        """Summary
+
+        Args:
+            roles (dict): Dict for converting Discord role -> PEX groups.
+            panel (Pterodactyl): Pterodactyl API instance.
+            sid (str): Short UUID for the server we're interacting with.
+            fieldnames (list): Headers for the `claimfile` csv.
+            basedir (str, optional): Working directory for the bot.
+        """
+        self.roles = roles
         self.panel = panel
         self.sid = sid
         self.fieldnames = fieldnames
 
-        self.basedir = abspath(join(dirname(__file__), '..'))
+        if basedir == '':
+            self.basedir = abspath(join(dirname(__file__), '..'))
+        else:
+            self.basedir = basedir
+
         self.claimfile = join(self.basedir, 'data', 'claimed.csv')
 
     def create_data_if_not_exists(self, folder: str, files: list):
@@ -39,8 +66,11 @@ class MCPermsHelper():
         """Instantiate a CSV with the specified field names.
 
         Args:
-            filepath (str): The full path of the file to populate.
+            filename (str): Name of the csv to instantiate.
             fieldnames (list): The fieldnames to set as the header.
+
+        Deleted Parameters:
+            filepath (str): The full path of the file to populate.
         """
         filepath = join(self.basedir, 'data', filename)
 
@@ -102,7 +132,7 @@ class MCPermsHelper():
             uuid (str): The UUID of the Minecraft account.
         """
         with open(self.claimfile, 'a', newline='') as claimed_file:
-            writer = csv.DictWriter(claimed_file, fieldnames=g_fieldnames)
+            writer = csv.DictWriter(claimed_file, fieldnames=self.fieldnames)
 
             writer.writerow({
                 'UUID': uuid,
@@ -119,6 +149,7 @@ class MCPermsHelper():
 
         Args:
             filename (str): The file to create from a template.
+            parent_dir (str): Path to the directory containing the file.
         """
         name = filename[0:filename.index('.')]
         ext = filename[filename.index('.'):]
