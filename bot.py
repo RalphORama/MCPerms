@@ -39,7 +39,20 @@ async def on_ready():
     print('Invite me to your server:\n    {}\n'.format(invite_link))
 
 
-@bot.command(pass_context=True)
+@bot.command(pass_context=True, no_pm=True)
+async def listroles(ctx):
+    msg = ('Server {} has the following roles:'
+           '\n```').format(ctx.message.server.name)
+
+    for role in ctx.message.server.roles:
+        msg = msg + '{}: {}\n'.format(role.name, role.id)
+
+    msg = msg + '```'
+
+    await bot.send_message(ctx.message.author, msg)
+
+
+@bot.command(pass_context=True, no_pm=True)
 async def claim(ctx, username: str):
     """Command to claim minecraft permissions.
 
