@@ -1,0 +1,7 @@
+{
+    "token": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "pubkey": "xxxxxxxxxxxxxxxx",
+    "privkey": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "baseURL": "https://pterodactyl.your.url/api",
+    "serverID": "xxxxxxxx"
+}
