@@ -99,7 +99,7 @@ if __name__ == '__main__':
 
     # Create a template config file and quit with an error if a config file
     # doesn't exist.
-    cfg_files = ['cfg/config.json', 'cfg/roles.json']
+    cfg_files = ['config.json', 'roles.json']
     for file in cfg_files:
         # Throw an error and exit if our critical config files don't exist
         if not os.path.isfile(file):
