@@ -101,8 +101,9 @@ if __name__ == '__main__':
     # doesn't exist.
     cfg_files = ['config.json', 'roles.json']
     for file in cfg_files:
+        fullpath = join(os.getcwd(), 'cfg', file)
         # Throw an error and exit if our critical config files don't exist
-        if not os.path.isfile(file):
+        if not os.path.isfile(fullpath):
             MCPermsHelper.copy_from_example(file, join(os.getcwd(), 'cfg'))
             exit('{} not found! I just created it for you. Go fill it out.'
                  .format(file))
