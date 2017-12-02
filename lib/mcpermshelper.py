@@ -138,7 +138,7 @@ class MCPermsHelper():
                 'UUID': uuid,
                 'USERNAME': username,
                 'DISCORD_ID': author.id,
-                'DISCORD_NICK': author.name + author.discriminator,
+                'DISCORD_NICK': author.name + '#' + author.discriminator,
                 'DISCORD_MENTION': author.mention
             })
 
